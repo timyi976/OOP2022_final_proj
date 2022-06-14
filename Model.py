@@ -23,19 +23,23 @@ class Model():
             self.readConfig(self.config_path)
         else:
             self.writeConfig(self.config_path, self.config)
-        # self.api = api.api()
+        self.getWeatherAPIData(self.config['city'], self.config['district'])
+        self.weather_city = self.config['city']
+        self.weather_district = self.config['district']
 
     # 以下是讓model自己使用的
     def getWeatherAPIData(self, city: str, town: str):
         """
-        從api取得天氣資料
+        從api取得天氣資料, 不會 update self.config['city'], self.config['district']
         輸入： city(縣市), town(鄉鎮市區)
         回傳： dict(天氣資料) (or None, no data)
         """
         self.weather_data = api.get_weather_data(city, town)
         if self.weather_data == None:
-            print('鄉鎮市區不存在, 或天氣 Query 錯誤, 重設預設值為：臺北市大安區')
+            print('鄉鎮市區不存在, 或天氣 Query 錯誤, 設定 weather_data 為：臺北市大安區')
             self.weather_data = api.get_weather_data('臺北市', '大安區')
+            self.weather_city = '臺北市'
+            self.weather_district = '大安區'
             if self.weather_data == None:
                 print('天氣 Query 錯誤')
         return self.weather_data
@@ -68,8 +72,9 @@ class Model():
         輸入：elementName(資料項目，參考api)
         回傳：int(數值) (or None, no data)
         """
-        if self.weather_data == None:
-            self.getWeatherAPIData('臺北市', '大安區')
+        
+        if self.weather_district != self.config['district'] or self.weather_city != self.config['city']:
+            self.getWeatherAPIData(self.config['city'], self.config['district'])
 
         valid_elementNames = ['PoP12h', 'T', 'RH', 'MinCI', 'WS', 'MaxAT', 'Wx',
             'MinT', 'UVI', 'WeatherDescription', 'MinAT', 'MaxT', 'WD', 'Td']
@@ -152,3 +157,7 @@ class Model():
 
 model = Model()
 d = model.readConfig(model.config_path)
+
+if __name__ == '__main__':
+    model.getWeatherAPIData('臺北市', '大安區')
+    print(model.getWeatherData('temp'))

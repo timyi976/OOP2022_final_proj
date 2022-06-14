@@ -125,6 +125,13 @@ def get_weather_data(city:str, town:str=""):
 
     if response.status_code == 200:
         data = json.loads(response.text)
+
+        if len(data["records"]["locations"]) == 0:
+            print('Error: 縣/市不存在')
+            return None
+        if len(data["records"]["locations"][0]["location"]) == 0:
+            print('Error: 鄉鎮市/區不存在')
+            return None
         
         weather_data = data["records"]["locations"][0]["location"][0]["weatherElement"]
         
@@ -137,7 +144,7 @@ def get_weather_data(city:str, town:str=""):
 
 if __name__ == "__main__":
     # get_data()
-    city = input("輸入城市名 （台需改為臺）：")
-    town = input("輸入鄉鎮市區名：")
-    ret = get_weather_data(city, town)
+    # city = input("輸入城市名 （台需改為臺）：")
+    # town = input("輸入鄉鎮市區名：")
+    ret = get_weather_data('臺北市', '大安森林公園')
     print(type(ret))
