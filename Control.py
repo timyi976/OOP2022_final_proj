@@ -55,10 +55,10 @@ class Controller():
         rain_t = self.model.getWeatherData('rain')
         uv_t = self.model.getWeatherData('uv')
 
-        temp_t = 10
-        hum_t = 20
-        rain_t = 30
-        uv_t = 40
+        # temp_t = 10
+        # hum_t = 20
+        # rain_t = 30
+        # uv_t = 40
 
         """
         預設是建不建議做甚麼事的msg為使用者自己設定，
