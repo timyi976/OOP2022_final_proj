@@ -23,7 +23,7 @@ class Model():
             self.readConfig(self.config_path)
         else:
             self.writeConfig(self.config_path, self.config)
-        # self.api = api.api()
+        self.weather_data = self.getWeatherAPIData(self.config['city'], self.config['district'])
 
     # 以下是讓model自己使用的
     def getWeatherAPIData(self, city: str, town: str):
@@ -152,3 +152,7 @@ class Model():
 
 model = Model()
 d = model.readConfig(model.config_path)
+
+if __name__ == '__main__':
+    model.getWeatherAPIData('雲林縣', '斗六市')
+    print(model.getWeatherData('temp'))
