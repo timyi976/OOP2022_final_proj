@@ -36,7 +36,7 @@ class Model():
         """
         self.weather_data = api.get_weather_data(city, town)
         if self.weather_data == None:
-            print('鄉鎮市區不存在, 或天氣 Query 錯誤, 重設預設值為：臺北市大安區')
+            print('鄉鎮市區不存在, 或天氣 Query 錯誤, 設定 weather_data 為：臺北市大安區')
             self.weather_data = api.get_weather_data('臺北市', '大安區')
             self.weather_city = '臺北市'
             self.weather_district = '大安區'
