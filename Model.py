@@ -1,4 +1,4 @@
-# import api
+import api
 import json
 import os
 
@@ -29,10 +29,16 @@ class Model():
     def getWeatherAPIData(self, city: str, town: str):
         """
         從api取得天氣資料
-        輸入：city(縣市), town(鄉鎮市區)
+        輸入： city(縣市), town(鄉鎮市區)
         回傳： dict(天氣資料) (or None, no data)
         """
-        pass
+        self.weather_data = api.get_weather_data(city, town)
+        if self.weather_data == None:
+            print('鄉鎮市區不存在, 或天氣 Query 錯誤, 重設預設值為：臺北市大安區')
+            self.weather_data = api.get_weather_data('臺北市', '大安區')
+            if self.weather_data == None:
+                print('天氣 Query 錯誤')
+        return self.weather_data
 
     def readConfig(self, file: str):
         """
@@ -57,19 +63,37 @@ class Model():
     # 以下是讓controller可以呼叫使用的
     def getWeatherData(self, elementName: str):
         """
-        取得特定某項天氣資料
+        取得特定某項天氣資料(離目前時間最近的)
+        需透過 Model.getWeatherAPIData(city, town)設定地區, 否則預設值為臺北市大安區
         輸入：elementName(資料項目，參考api)
         回傳：int(數值) (or None, no data)
         """
-        if elementName == 'temp':
-            return 10
-        elif elementName == 'hum':
-            return 20
-        elif elementName == 'rain':
-            return 30
-        elif elementName == 'uv':
-            return 40
-        pass
+        if self.weather_data == None:
+            self.getWeatherAPIData('臺北市', '大安區')
+
+        valid_elementNames = ['PoP12h', 'T', 'RH', 'MinCI', 'WS', 'MaxAT', 'Wx',
+            'MinT', 'UVI', 'WeatherDescription', 'MinAT', 'MaxT', 'WD', 'Td']
+
+        if elementName == "temp":
+            elementName = "T"
+        elif elementName == "hum":
+            elementName = "RH"
+        elif elementName == "rain":
+            elementName = "PoP12h"
+        elif elementName == "uv":
+            elementName = "UVI"
+
+        if elementName not in valid_elementNames:
+            print("elementName=%s 不合法" % (elementName))
+            print("Valid elementNames:", valid_elementNames)
+            return None
+        
+        for weather_element in self.weather_data:
+            if weather_element["elementName"] != elementName:
+                continue
+            return weather_element["time"][0]["elementValue"][0]["value"]
+        
+        return None
 
     def getConfigField(self, field: str):
         """
