@@ -24,6 +24,9 @@ class line():
                             #"Content-Type" : "application/x-www-form-urlencoded"
                 }
                 msg = self.controller.getMessage()
+                '''
+                print(msg)
+                print(type(msg))
                 #第一行字
                 Myfont  = ImageFont.truetype('NotoSansTC-Black.otf', 30)
                 (x, y) = (self.width/2/2, self.height/2)
@@ -44,6 +47,33 @@ class line():
                 payload = {'message':  msg[1]}
                 self.Srcimg.save('WeatherCard.png')
                 picURI = "./WeatherCard.png"
+                '''
+                #payload = {'message':  msg}
+                #picURI={}
+                #第一行字
+                Myfont  = ImageFont.truetype('NotoSansTC-Black.otf', 30)
+                (x, y) = (self.width/2, self.height/2)
+                color  = 'rgb(253, 191, 98)'
+                Mytext = msg.split("\n")[6]
+                Myfont  = ImageFont.truetype('NotoSansTC-Black.otf', 150)
+                self.Drawimg.text((x, y), Mytext, fill=color,anchor="ms", font=Myfont,align = 'center')
+                
+                Myfont  = ImageFont.truetype('NotoSansTC-Black.otf', 40)
+                (x, y) = (self.width/2-300, self.height/2+200) # Text position
+                color  = 'rgb(253, 191, 98)' # Text color
+                Mytext = '天氣分析鬼才機器人 貼心提醒'
+                self.Drawimg.text((x, y), Mytext, fill=color, font=Myfont,align = 'center')
+                #文字訊息為msg[1]
+                payload = {'message':  msg}
+                self.Srcimg.save('WeatherCard.png')
+                picURI = "./WeatherCard.png"
+                
+                
+                
+                self.Srcimg.save('WeatherCard.png')
+                picURI = "./WeatherCard.png"
+                
+                
                 if picURI:
                     files = {'imageFile': open(picURI, 'rb')}
                     r = requests.post(url, headers=headers, params=payload, files=files)
