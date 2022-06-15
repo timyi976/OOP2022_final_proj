@@ -1,6 +1,11 @@
 from Model import Model
 import os
+import platform
 from datetime import datetime, timedelta
+"""
+安裝: pip install python-crontab
+"""
+from crontab import CronTab
 
 class Controller():
     def __init__(self):
@@ -39,25 +44,11 @@ class Controller():
     def setCron(self, command: str=''):
         """
         設定contab
-        輸入：command(crontab要執行的command)
+        輸入：暫無 固定參照config的資訊傳送line通知
         回傳：bool(是否寫入成功)
         Comments: 使用python-crontab (?) / 當通知時間被設定時要執行，並用python-crontab更改/新增/刪除 crontab jobs / command可能就是"python3 [abs path]/line.py"
-        FirstCommit:目前只能跑在windows上 且需要管理員權限
+        Comments: windows跑需要管理員權限 unix-like若沒限制crontab執行權限則都可
         """
-        work_dir = os.getcwd()
-        cron_file_name = 'line.py'
-        task_name = "OOPLine"
-
-        days = self.getConfigField('days')
-        week_name = ['MON','TUE','WED','THU','FRI','SAT','SUN']
-        weekday = ' '.join([week_name[i-1] for i in days])
-        time = self.getConfigField('time')
-        run_time = time[:2]+':'+time[2:]
-
-        now = datetime.now()
-        end_time = now.strftime("%H:%M")
-        end_date = (now + timedelta(days=7)).strftime("%Y/%m/%d")
-
         # check python command
         py = os.system('python -V')
         py3 = os.system('python3 -V')
@@ -65,39 +56,73 @@ class Controller():
             py_command = 'python3' if not py3 else 'python'
         else:
             print('Please input your command of running python scripts.(like "python3" or "python")')
-            py_command = input()
+            py_command = input()        
 
-        # schedule the notification, runs exactly one time at each specified time and date
-        os.system(f'schtasks /Create /F /Z /TN {task_name} \
-                            /TR "{py_command} {work_dir}/{cron_file_name}" \
-                            /SC WEEKLY \
-                            /D "{weekday}" \
-                            /ST {run_time} \
-                            /ED {end_date} \
-                            /ET {end_time} \
-                            /RI 0 \
-        ')
+        work_dir = os.getcwd()
+        cron_file_name = 'line.py'
+        task_name = "OOPLine"
+        days = self.getConfigField('days')
+        time = self.getConfigField('time')        
+	
+        if not platform.system().lower() == 'windows':
+            my_cron = CronTab(user=True)
+            my_cron.remove_all(comment=task_name)
+            if len(days) == 0:
+                return True
+            my_cron.env['PATH'] = '/bin:/usr/bin:/usr/local/bin'
+            job = my_cron.new(command=f'cd {work_dir} && python {work_dir}/{cron_file_name}',comment=task_name)
 
-        os.system(f'schtasks /Query /TN {task_name} /XML > config.xml')
-        config = open('./config.xml', 'r', encoding='cp950')
-        config_add = open('./config_add.xml', 'w', encoding='cp950')
-        while True:
-            line = config.readline()
-            if line == '':
-                break
-            config_add.write(line)
-            if '<Arguments>' in line:
-                add_line = '\n' + line[:line.index('<')] + f'<WorkingDirectory>{work_dir}</WorkingDirectory>\n'
-                config_add.write(add_line)
-        config.close()
-        config_add.close()
-        os.system(f'schtasks /Create /F /TN {task_name} /XML config_add.xml')
-        try:
-            os.remove('./config.xml')
-            os.remove('./config_add.xml')
-        except:
-            os.remove('./config.xml')
-            os.remove('./config_add.xml')
+            job.minute.on(10*time[-2]+time[-1])
+            job.hour.on(10*time[0]+time[1])
+            job.dow.on(*[day%7 for day in days])
+            my_cron.write(user=True)
+            return True
+        else:
+            if len(days) == 0:
+                os.system(f'schtasks /Delete /F /TN {task_name}')
+                return True
+            week_name = ['SUN','MON','TUE','WED','THU','FRI','SAT']
+            weekday = ' '.join([week_name[i%7] for i in days])
+            run_time = time[:2]+':'+time[2:]
+
+            now = datetime.now()
+            end_time = now.strftime("%H:%M")
+            end_date = (now + timedelta(days=7)).strftime("%Y/%m/%d")
+
+            # schedule the notification, runs exactly one time at each specified time and date
+            os.system(f'schtasks /Create /F /Z /TN {task_name} \
+		                 /TR "{py_command} {work_dir}/{cron_file_name}" \
+		                 /SC WEEKLY \
+		                 /D "{weekday}" \
+		                 /ST {run_time} \
+		                 /ED {end_date} \
+		                 /ET {end_time} \
+		                 /RI 0 \
+            ')
+            os.system(f'schtasks /Query /TN {task_name} /XML > config.xml')
+            config = open('./config.xml', 'r', encoding='cp950')
+            config_add = open('./config_add.xml', 'w', encoding='cp950')
+            while True:
+                line = config.readline()
+                if line == '':
+                    break
+                config_add.write(line)
+                if '<Arguments>' in line:
+                    add_line = '\n' + line[:line.index('<')] + f'<WorkingDirectory>{work_dir}</WorkingDirectory>\n'
+                    config_add.write(add_line)
+            config.close()
+            config_add.close()
+            os.system(f'schtasks /Create /F /TN {task_name} /XML config_add.xml')
+            try:
+                os.remove('./config.xml')
+                os.remove('./config_add.xml')
+            except:
+                #os.remove('./config.xml')
+                #os.remove('./config_add.xml')
+                pass
+            finally:
+                return True
+
     def getMessage(self):
         """
         取得要通知的訊息內容
