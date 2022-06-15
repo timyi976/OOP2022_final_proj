@@ -1,4 +1,4 @@
-import control
+import Control
 import requests
 from PIL import Image, ImageDraw, ImageFont
 
@@ -7,7 +7,7 @@ class line():
         self.Srcimg  = Image.open('./chinesenewyear.png')
         self.Drawimg = ImageDraw.Draw(self.Srcimg)
         self.width , self.height = self.Srcimg.size
-        self.controller = controller.controller()
+        self.controller = Control.Controller()
 
     def sendMessage(self):
         Line_tokens_list = self.controller.getLineList()
