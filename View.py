@@ -378,7 +378,7 @@ class view(Ui_Form):
              '連江縣': ['南竿鄉', '北竿鄉', '莒光鄉', '東引鄉'],
              '金門縣': ['金城鎮', '金湖鎮', '金沙鎮', '金寧鄉', '烈嶼鄉', '烏坵鄉'],
              }
-        if self.city_lineEdit.text() in d.keys() and d[self.city_lineEdit.text()].count(self.town_lineEdit.text()) != 0:
+        if self.city_lineEdit.text() in d.keys() and (d[self.city_lineEdit.text()].count(self.town_lineEdit.text()) != 0 or self.town_lineEdit.text() == ""):
             return 1
         else:
             self.error_location()
