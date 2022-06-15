@@ -213,7 +213,8 @@ class view(Ui_Form):
         if self.sun_checkBox.checkState() == 2:
             day_lis.append(7)
         d["days"] = day_lis
-        d["time"] = self.time_timeEdit.dateTime().toString("HHMM")
+        # print(self.time_timeEdit.dateTime().toString("HHmm"))
+        d["time"] = self.time_timeEdit.dateTime().toString("HHmm")
 
         if self.check_value() == 0:
             print("value_error")
