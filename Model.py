@@ -96,7 +96,7 @@ class Model():
         for weather_element in self.weather_data:
             if weather_element["elementName"] != elementName:
                 continue
-            return weather_element["time"][0]["elementValue"][0]["value"]
+            return int(weather_element["time"][0]["elementValue"][0]["value"])
         
         return None
 
