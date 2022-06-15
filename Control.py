@@ -99,6 +99,7 @@ class Controller():
         輸入：elementName(資料項目，參考api)
         回傳：int(數值) (or None, no data)
         """
+        return self.model.getWeatherData(elementName)
 
     def getConfigField(self, field: str):
         """
