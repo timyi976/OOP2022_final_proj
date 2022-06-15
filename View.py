@@ -263,7 +263,7 @@ class view(Ui_Form):
         """
         儲存設定後直接排定通知
         """
-        self.controller.setCron()
+        # self.controller.setCron()
 
         self.popup.showMessage("設定儲存成功！","設定成功通知")
 
@@ -271,7 +271,7 @@ class view(Ui_Form):
 
     def preview_button(self):
         self.save_button()
-        self.popup.showMessage(self.controller.getMessage(),"通知訊息預覽")
+        self.popup.showMessage(self.controller.getMessagePrev(),"通知訊息預覽")
 
     def delay_exec(self, delay, func):
         self.timer = QtCore.QTimer()

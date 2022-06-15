@@ -125,8 +125,7 @@ class Controller():
             msg[1] = str(self.model.getConfigField('message_pre_f')),"\n今天溫度為攝氏", temp_t, "度\n濕度為", hum_t,"%\n降雨機率為", rain_t, "%\n紫外線指數為",uv_t, "\n"
             msg[2] = str(self.model.getConfigField('message_post_f'))
         return msg
-    '''
-    def getMessage(self):
+    def getMessagePrev(self):
         """
         取得要通知的訊息內容
         輸入：無
@@ -153,7 +152,6 @@ class Controller():
         else:
             msg = str(self.model.getConfigField('message_pre_f')) + "\n今天溫度為攝氏" + str(temp_t) + "度\n濕度為" + str(hum_t) + "%\n降雨機率為" + str(rain_t) + "%\n紫外線指數為" + str(uv_t) + "\n" + str(self.model.getConfigField('message_post_f'))
         return msg
-    '''
 
     def addLineList(self, line_token: str):
         """
