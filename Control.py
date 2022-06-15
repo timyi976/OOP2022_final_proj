@@ -98,7 +98,34 @@ class Controller():
         except:
             os.remove('./config.xml')
             os.remove('./config_add.xml')
+    def getMessage(self):
+        """
+        取得要通知的訊息內容
+        輸入：無
+        回傳：str(要輸出的訊息字串) (call determine並根據config產生對應字串)
+        """
+        temp_t = self.model.getWeatherData('temp')
+        hum_t = self.model.getWeatherData('hum')
+        rain_t = self.model.getWeatherData('rain')
+        uv_t = self.model.getWeatherData('uv')
 
+        """
+        預設是建不建議做甚麼事的msg為使用者自己設定，
+        例如這是他要判斷要不要去早八的，message_post_t就可能是:[可以去上早八]
+        或是判斷打球的，message_post_f就可能是:[不建議去打球]
+        所以msg沒寫入任何建議/不建議等字樣(這點也可以大家討論)
+        """
+        msg = []
+        if self.determine():
+            msg[0] = self.model.getWeatherData('WeatherDescription')
+            msg[1] = str(self.model.getConfigField('message_pre_t')),"\n今天溫度為攝氏", temp_t, "度\n濕度為", hum_t,"%\n降雨機率為", rain_t, "%\n紫外線指數為",uv_t, "\n"
+            msg[2] = str(self.model.getConfigField('message_post_t'))
+        else:
+            msg[0] = self.model.getWeatherData('WeatherDescription')
+            msg[1] = str(self.model.getConfigField('message_pre_f')),"\n今天溫度為攝氏", temp_t, "度\n濕度為", hum_t,"%\n降雨機率為", rain_t, "%\n紫外線指數為",uv_t, "\n"
+            msg[2] = str(self.model.getConfigField('message_post_f'))
+        return msg
+    '''
     def getMessage(self):
         """
         取得要通知的訊息內容
@@ -126,6 +153,7 @@ class Controller():
         else:
             msg = str(self.model.getConfigField('message_pre_f')) + "\n今天溫度為攝氏" + str(temp_t) + "度\n濕度為" + str(hum_t) + "%\n降雨機率為" + str(rain_t) + "%\n紫外線指數為" + str(uv_t) + "\n" + str(self.model.getConfigField('message_post_f'))
         return msg
+    '''
 
     def addLineList(self, line_token: str):
         """
