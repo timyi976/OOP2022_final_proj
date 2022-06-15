@@ -70,7 +70,7 @@ class Model():
         取得特定某項天氣資料(離目前時間最近的)
         需透過 Model.getWeatherAPIData(city, town)設定地區, 否則預設值為臺北市大安區
         輸入：elementName(資料項目，參考api)
-        回傳：int(數值) (or None, no data)
+        回傳：int(數值)或str(天氣描述) (or None, no data)
         """
         
         if self.weather_district != self.config['district'] or self.weather_city != self.config['city']:
@@ -96,7 +96,11 @@ class Model():
         for weather_element in self.weather_data:
             if weather_element["elementName"] != elementName:
                 continue
-            return int(weather_element["time"][0]["elementValue"][0]["value"])
+            
+            if weather_element["elementName"] == 'WeatherDescription' or weather_element["elementName"] == 'Wx':
+                return weather_element["time"][0]["elementValue"][0]["value"]
+            else:
+                return int(weather_element["time"][0]["elementValue"][0]["value"])
         
         return None
 
