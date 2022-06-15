@@ -1,5 +1,6 @@
 from Model import Model
-
+import os
+from datetime import datetime, timedelta
 
 class Controller():
     def __init__(self):
@@ -35,14 +36,68 @@ class Controller():
 
         return check
 
-    def setCron(self, command: str):
+    def setCron(self, command: str=''):
         """
         設定contab
         輸入：command(crontab要執行的command)
         回傳：bool(是否寫入成功)
         Comments: 使用python-crontab (?) / 當通知時間被設定時要執行，並用python-crontab更改/新增/刪除 crontab jobs / command可能就是"python3 [abs path]/line.py"
+        FirstCommit:目前只能跑在windows上 且需要管理員權限
         """
-        pass
+        work_dir = os.getcwd()
+        cron_file_name = 'line.py'
+        task_name = "OOPLine"
+
+        days = self.getConfigField('days')
+        week_name = ['MON','TUE','WED','THU','FRI','SAT','SUN']
+        weekday = ' '.join([week_name[i-1] for i in days])
+        time = self.getConfigField('time')
+        run_time = time[:2]+':'+time[2:]
+
+        now = datetime.now()
+        end_time = now.strftime("%H:%M")
+        end_date = (now + timedelta(days=7)).strftime("%Y/%m/%d")
+
+        # check python command
+        py = os.system('python -V')
+        py3 = os.system('python3 -V')
+        if not (py and py3):
+            py_command = 'python3' if not py3 else 'python'
+        else:
+            print('Please input your command of running python scripts.(like "python3" or "python")')
+            py_command = input()
+
+        # schedule the notification, runs exactly one time at each specified time and date
+        os.system(f'schtasks /Create /F /Z /TN {task_name} \
+                            /TR "{py_command} {work_dir}/{cron_file_name}" \
+                            /SC WEEKLY \
+                            /D "{weekday}" \
+                            /ST {run_time} \
+                            /ED {end_date} \
+                            /ET {end_time} \
+                            /RI 0 \
+        ')
+
+        os.system(f'schtasks /Query /TN {task_name} /XML > config.xml')
+        config = open('./config.xml', 'r', encoding='cp950')
+        config_add = open('./config_add.xml', 'w', encoding='cp950')
+        while True:
+            line = config.readline()
+            if line == '':
+                break
+            config_add.write(line)
+            if '<Arguments>' in line:
+                add_line = '\n' + line[:line.index('<')] + f'<WorkingDirectory>{work_dir}</WorkingDirectory>\n'
+                config_add.write(add_line)
+        config.close()
+        config_add.close()
+        os.system(f'schtasks /Create /F /TN {task_name} /XML config_add.xml')
+        try:
+            os.remove('./config.xml')
+            os.remove('./config_add.xml')
+        except:
+            os.remove('./config.xml')
+            os.remove('./config_add.xml')
 
     def getMessage(self):
         """

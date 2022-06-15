@@ -259,6 +259,11 @@ class view(Ui_Form):
         self.controller.setConfigField('message_pre_f', d["message_pre_f"])
         self.controller.setConfigField('message_post_f', d["message_post_f"])
 
+        """
+        儲存設定後直接排定通知
+        """
+        self.controller.setCron()
+
         self.popup.showMessage("設定儲存成功！","設定成功通知")
 
         print(d)
